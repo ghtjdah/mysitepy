@@ -1,0 +1,123 @@
+{% extends '../base.html %}
+
+{% block css_link %}
+<link href="/assets/css/board.css" rel="stylesheet" type="text/css">
+<!--<script type="text/javascript" src="/assets/js/paging.js"></script>-->
+{% endblock %}
+
+{% block content %}
+			<div id="board">
+				<form id="search_form" action="/board/find" method="post">{% csrf_token %}
+					{% if keyword == "" %}
+						<input type="text" id="keyword" name="keyword" value="">
+					{% else %}
+						<input type="text" id="keyword" name="keyword" value="{{keyword}}">
+					{% endif %}
+					<input type="submit" value="찾기">
+				</form>
+				<table class="tbl-ex">
+					<tr>
+						<th>번호</th>
+						<th class="title">제목</th>
+						<th>글쓴이</th>
+						<th>조회수</th>
+						<th>작성일</th>
+						<th>&nbsp;</th>
+					</tr>
+					{% for content in contents %}
+					<tr>
+						<td style="padding-left:calc(20px * {{content.depth}})">
+							{% if content.depth > 0 %}
+								<img src="/assets/images/arrow.png" style="width:12px;">
+							{% endif %}
+							<script>
+								var num = {{ pagenum }} - 1;
+								var boardcount = {{ boardlen }} - (5*num)
+								document.write(boardcount - {{ forloop.counter0 }});
+							</script>
+						</td>
+						<td class="realtitle"><a href="/board/view?id={{ content.id }}">{{ content.title }}</a></td>
+						<td>{{ content.userid.name }}</td>
+						<td>{{ content.hit }}</td>
+						<td>{{ content.reg_date }}</td>
+						{% if authuser.id == content.userid_id %}
+							<td><a href="/board/deleteform?id={{ content.id }}" class="del">삭제</a></td>
+						{% else %}
+						<td></td>
+						{% endif %}
+					</tr>
+					{% endfor %}
+
+				</table>
+				<div class="pager">
+					<ul>
+						<script>
+							var baseurl = '<li><a href="/board/list?page=';
+							var maxlist = 5;
+							var pagelist = {{pagenum}}/5;
+							var writefunc = function(i){
+								if("{{ keyword }}"==""){
+									document.write(baseurl + i
+										+ '" id="tab-' + i
+										+ '">' + i
+										+ '</a></li>');
+								}
+								else{
+									document.write(baseurl + i
+									 	+ '&keyword='
+									 	+ "{{keyword}}"
+										+ '" id="tab-' + i
+										+ '">' + i
+										+ '</a></li>')
+								}
+							};
+
+							if( {{pagenum}} > 5 ){
+								var beforepage = (Math.ceil(pagelist) - 1) * 5
+								if("{{ keyword }}"==""){
+									document.write(baseurl + beforepage + '">◀</a></li>');
+								}
+								else{
+									document.write(baseurl + beforepage + '&keyword='
+									 	+ "{{keyword}}" + '">◀</a></li>');
+								}
+							}
+
+							if((Math.floor(pagelist) != Math.ceil(pagelist))){
+								for(var i=(Math.floor(pagelist)*5 + 1); i<=(Math.ceil(pagelist)*5); i++){
+									writefunc(i);
+
+									if( i == {{len}} )
+										break;
+								}
+							}
+							else{
+								for(var a=((pagelist - 1)*5 + 1); a<=(pagelist*5); a++){
+									writefunc(a);
+								}
+							}
+
+							if( Math.ceil(pagelist)*5 < {{len}} ){
+								if("{{ keyword }}"==""){
+									document.write(baseurl + (Math.ceil(pagelist)*5+1) + '">▶</a></li>')
+								}
+								else{
+									document.write(baseurl + (Math.ceil(pagelist)*5+1) + '&keyword='
+									 	+ "{{keyword}}" + '">▶</a></li>')
+								}
+							}
+						</script>
+
+						<script>
+							var aElement = document.getElementById("tab-"+{{pagenum}});
+							aElement.className = "selected";
+						</script>
+					</ul>
+				</div>
+				{% if authuser is not None %}
+					<div class="bottom">
+						<a href="/board/writeform" id="new-book">글쓰기</a>
+					</div>
+				{% endif %}
+			</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends '../base.html %}
+
+{% block css_link %}
+<link href="/assets/css/guestbook.css" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+			<div id="guestbook">
+				<form action="/guestbook/add" method="post">{% csrf_token %}
+					<input type="hidden" name="a" value="insert">
+					<table>
+						<tr>
+							{% if request.session.authuser is None %}
+								<td>이름</td><td><input type="text" name="name"></td>
+								<td>비밀번호</td><td><input type="password" name="password"></td>
+							{% else %}
+								<td>이름</td><td>{{request.session.authuser.name}}</td>
+								<td>비밀번호</td><td><input type="password" value="{{request.session.authuser.password}}"></td>
+							{% endif %}
+						</tr>
+						<tr>
+							<td colspan=4><textarea name="content" id="content"></textarea></td>
+						</tr>
+						<tr>
+							<td colspan=4 align=right><input type="submit" VALUE=" 확인 "></td>
+						</tr>
+					</table>
+				</form>
+				<ul>
+					<li>
+						{% for comment in messages %}
+						<table>
+							<tr>
+								<td>{{forloop.revcounter}}</td>
+								<td>{{comment.name}}</td>
+								<td>{{comment.reg_date}}</td>
+								<td><a href="/guestbook/deleteform?id={{comment.id}}">삭제</a></td>
+							</tr>
+							<tr>
+								<td colspan=4>
+								{{comment.message}}<br>
+								</td>
+							</tr>
+						</table>
+						{% endfor %}
+						<br>
+					</li>
+				</ul>
+			</div>
+{% endblock %}

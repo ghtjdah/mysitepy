@@ -1,0 +1,35 @@
+{% extends '../base.html %}
+
+{% block css_link %}
+<link href="/assets/css/user.css" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+			<div id="user">
+				<form id="join-form" name="joinForm" method="post" action="/user/modify">
+					{% csrf_token %}
+					<label class="block-label" for="name">이름</label>
+					<h3>{{ user.name }}</h3>
+
+					<label class="block-label" for="email">이메일</label>
+					<h3>{{ user.email }}</h3>
+
+					<label class="block-label">패스워드</label>
+					<input name="password" type="password" value="{{ user.password }}">
+
+					<fieldset>
+						<legend>성별</legend>
+						{% if user.gender == "male" %}
+						<label>여</label> <input type="radio" name="gender" value="female">
+						<label>남</label> <input type="radio" name="gender" value="male" checked="checked">
+						{% else %}
+						<label>여</label> <input type="radio" name="gender" value="female" checked="checked">
+						<label>남</label> <input type="radio" name="gender" value="male">
+						{% endif %}
+					</fieldset>
+
+					<input type="submit" value="수정하기">
+
+				</form>
+			</div>
+{% endblock %}
